@@ -503,8 +503,13 @@ bool FindGCC(char *path) {
 }
 
 bool FindGCCPath(char *gcc_bin_path) {
-  char *path_value;
-  path_value = getenv("PATH");
+  const char *path_env = getenv("PATH");
+  if (!path_env) {
+    return false;
+  }
+
+  // Work on a private copy: the loop below inserts '\0' separators.
+  char *path_value = _strdup(path_env);
   if (!path_value) {
     return false;
   }
@@ -528,9 +533,10 @@ bool FindGCCPath(char *gcc_bin_path) {
 
     if (end_ptr > start_ptr) {
       // we have a path to check
-      if (FindGCC(start_ptr)) {
+      if (strlen(start_ptr) < _MAX_PATH && FindGCC(start_ptr)) {
         strcpy(gcc_bin_path, start_ptr);
         SetCurrentDirectory(old_path); // restore working directory
+        free(path_value);
         return true;
       }
 
@@ -542,5 +548,6 @@ bool FindGCCPath(char *gcc_bin_path) {
   }
 
   SetCurrentDirectory(old_path); // restore working directory
+  free(path_value);
   return false;
 }
