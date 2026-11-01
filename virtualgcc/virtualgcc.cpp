@@ -74,7 +74,7 @@ void output(const char *format, ...) {
   vsprintf(buffer, format, list);
   va_end(list);
 
-  fprintf(stdout, buffer);
+  fputs(buffer, stdout);
   fflush(stdout);
 }
 
@@ -394,7 +394,7 @@ int main(int argc, char *argv[]) {
   // Step 1: Compile source file to object file
   if (!Step1(&si)) {
     SetCurrentDirectory(old_path);
-    exit(1);
+    return EXIT_FAILURE;
   }
 
   // Step 2: DLL
